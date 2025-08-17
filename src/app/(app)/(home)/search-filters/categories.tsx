@@ -1,15 +1,15 @@
 "use client";
 
-import { CategoryDropdown } from "./category-dropdown";
-import { CustomCategory } from "../type";
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CategoriesGetManyOutput } from "@/module/categories/types";
 import { ListFilterIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { CategoriesSidebar } from "./categories-sidebar";
+import { CategoryDropdown } from "./category-dropdown";
 
 interface CategoriesProps {
-  data: CustomCategory[];
+  data: CategoriesGetManyOutput;
 }
 export const Categories = ({ data }: CategoriesProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -17,7 +17,7 @@ export const Categories = ({ data }: CategoriesProps) => {
   const viewAllRef = useRef<HTMLDivElement>(null);
 
   const [visibleCount, setVisibleCount] = useState(data.length);
-  const [usAnyHovered, setIsAnyHovered] = useState(false);
+  const [isAnyHovered, setIsAnyHovered] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const activeCategory = "all";
@@ -59,11 +59,7 @@ export const Categories = ({ data }: CategoriesProps) => {
   return (
     <div className="relative w-full">
       {/* Categories Sidebar */}
-      <CategoriesSidebar
-        data={data}
-        open={isSidebarOpen}
-        onOpenChange={setIsSidebarOpen}
-      />
+      <CategoriesSidebar open={isSidebarOpen} onOpenChange={setIsSidebarOpen} />
       <div
         ref={measureRef}
         className="absolute opacity-0 pointer-events-none flex"
@@ -73,7 +69,7 @@ export const Categories = ({ data }: CategoriesProps) => {
           left: -9999,
         }}
       >
-        {data.map((category: CustomCategory) => (
+        {data.map((category: CategoriesGetManyOutput[1]) => (
           <div key={category.id}>
             <CategoryDropdown
               category={category}
@@ -90,15 +86,17 @@ export const Categories = ({ data }: CategoriesProps) => {
         onMouseEnter={() => setIsAnyHovered(true)}
         onMouseLeave={() => setIsAnyHovered(false)}
       >
-        {data.slice(0, visibleCount).map((category: CustomCategory) => (
-          <div key={category.id}>
-            <CategoryDropdown
-              category={category}
-              isActive={activeCategory === category.slug}
-              isNavigationHovered={false}
-            />
-          </div>
-        ))}
+        {data
+          .slice(0, visibleCount)
+          .map((category: CategoriesGetManyOutput[1]) => (
+            <div key={category.id}>
+              <CategoryDropdown
+                category={category}
+                isActive={activeCategory === category.slug}
+                isNavigationHovered={false}
+              />
+            </div>
+          ))}
         <div ref={viewAllRef}>
           <Button
             className={cn(
