@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation";
 import { NavbarSidebar } from "./navbar-sidebar";
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -49,6 +51,9 @@ export const Navbar = () => {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const pathName = usePathname();
   const isActive = (href: string) => pathName === href;
+  const trpc = useTRPC();
+  const session = useQuery(trpc.auth.session.queryOptions());
+
   return (
     <div className="h-20 items-center flex border-b justify-between font-medium bg-white">
       <Link href="/" className="pl-6">
@@ -72,8 +77,38 @@ export const Navbar = () => {
           />
         ))}
       </div>
-
-      <div className="lg:flex h-full hidden">
+      {!session.data?.user && (
+        <div className="lg:flex h-full hidden">
+          <Button
+            asChild
+            variant="secondary"
+            className="border-l border-y-0 border-r-0 px-12 h-full rounded-none bg-white hover:bg-pink-400 transition-colors text-lg"
+          >
+            <Link prefetch href="/sign-in">
+              Log in
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            className="border-l border-y-0 border-r-0 px-12 h-full rounded-none bg-black text-white hover:bg-pink-400 hover:text-black transition-colors text-lg"
+          >
+            <Link prefetch href="/admin">
+              Start selling
+            </Link>
+          </Button>
+        </div>
+      )}
+      {session.data?.user && (
+        <Button
+          asChild
+          variant="secondary"
+          className="border-l border-y-0 border-r-0 px-12 h-full rounded-none bg-black text-white hover:bg-pink-400 hover:text-black transition-colors text-lg"
+        >
+          <Link href="/admin">Dashboard</Link>
+        </Button>
+      )}
+      {/* <div className="lg:flex h-full hidden" >
         <Button
           asChild
           variant="secondary"
@@ -92,7 +127,7 @@ export const Navbar = () => {
             Start selling
           </Link>
         </Button>
-      </div>
+      </div> */}
       <div className="flex lg:hidden items-center justify-center">
         <Button
           variant={"ghost"}
